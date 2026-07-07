@@ -63,6 +63,7 @@ const cities = [
   { name: "Casablanca", country: "Morocco" },
   { name: "Cape Town", country: "South Africa" },
   { name: "Nairobi", country: "Kenya" },
+  { name: "others", country: "others" },
 ];
 
 export default function Home() {
@@ -79,7 +80,7 @@ export default function Home() {
             <div>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-paper-raised px-3 py-1 text-xs font-medium text-ink-soft">
                 <VerifiedSeal size={12} className="text-teal" />
-                Built with students across 5 countries
+                Built with students across Africa
               </span>
               <h1 className="mt-5 font-display text-4xl font-semibold leading-[1.05] tracking-tight text-ink md:text-5xl">
                 Housing you can verify before you relocate.
