@@ -63,7 +63,9 @@ const cities = [
   { name: "Casablanca", country: "Morocco" },
   { name: "Cape Town", country: "South Africa" },
   { name: "Nairobi", country: "Kenya" },
-  { name: "others", country: "others" },
+  { name: "Accra", country: "Ghana" },
+  { name: "Lagos", country: "Nigeria" },
+  { name: "Kigali", country: "Rwanda" },
 ];
 
 export default function Home() {
