@@ -32,7 +32,59 @@ export type CurrentUserInfo = {
   email: string | null;
   role: "student" | "landlord" | null;
 };
+export type ListingBooking = {
+  id: string;
+  listingId: string;
+  listingTitle: string;
+  studentName: string;
+  startDate: string;
+  endDate: string;
+  paymentStatus: string;
+};
 
+type ListingBookingRow = {
+  id: string;
+  start_date: string;
+  end_date: string;
+  payment_status: string;
+  listings: { id: string; title: string; landlord_id: string } | null;
+  profiles: { full_name: string | null } | null;
+};
+
+export async function getBookingsForMyListings(): Promise<ListingBooking[]> {
+  if (!isSupabaseConfigured()) return [];
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from("bookings")
+    .select(
+      "id, start_date, end_date, payment_status, listings!inner ( id, title, landlord_id ), profiles ( full_name )",
+    )
+    .eq("listings.landlord_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (error || !data) {
+    console.error("Failed to fetch bookings for landlord listings:", error);
+    return [];
+  }
+
+  return (data as unknown as ListingBookingRow[])
+    .filter((row) => row.listings)
+    .map((row) => ({
+      id: row.id,
+      listingId: row.listings!.id,
+      listingTitle: row.listings!.title,
+      studentName: row.profiles?.full_name ?? "Student",
+      startDate: row.start_date,
+      endDate: row.end_date,
+      paymentStatus: row.payment_status,
+    }));
+}
 export async function getCurrentUserInfo(): Promise<CurrentUserInfo | null> {
   if (!isSupabaseConfigured()) return null;
 

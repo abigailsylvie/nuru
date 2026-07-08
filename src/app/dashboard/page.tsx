@@ -5,10 +5,11 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { VerifiedSeal } from "@/components/VerifiedSeal";
 import { formatPrice } from "@/lib/listings";
-import { getCurrentUserInfo, getMyListings } from "@/lib/landlord-listings-service";
+import { getCurrentUserInfo, getMyListings, getBookingsForMyListings } from "@/lib/landlord-listings-service";
+import { BookingRequestActions } from "./BookingRequestActions";
 
 export const metadata = {
-  title: "Dashboard — Nuru",
+  title: "Dashboard  Nuru",
 };
 
 export default async function DashboardPage() {
@@ -45,6 +46,8 @@ export default async function DashboardPage() {
   }
 
   const listings = await getMyListings();
+  const bookings = await getBookingsForMyListings();
+  const pendingBookings = bookings.filter((b) => b.paymentStatus === "pending");
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -69,6 +72,36 @@ export default async function DashboardPage() {
               + Add listing
             </Link>
           </div>
+
+          {pendingBookings.length > 0 && (
+            <div className="mt-8">
+              <h2 className="font-display text-lg font-semibold text-ink">
+                Booking Requests
+                <span className="ml-2 rounded-full bg-gold/20 px-2.5 py-0.5 text-xs font-medium text-gold-dim align-middle">
+                  {pendingBookings.length} pending
+                </span>
+              </h2>
+              <div className="mt-4 space-y-3">
+                {pendingBookings.map((booking) => (
+                  <div
+                    key={booking.id}
+                    className="flex flex-col gap-3 rounded-2xl border border-line bg-paper-raised p-4 sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div>
+                      <p className="font-display text-sm font-semibold text-ink">
+                        {booking.listingTitle}
+                      </p>
+                      <p className="mt-0.5 text-xs text-ink-soft">
+                        {booking.studentName} · {new Date(booking.startDate).toLocaleDateString()} —{" "}
+                        {new Date(booking.endDate).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <BookingRequestActions bookingId={booking.id} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {listings.length === 0 ? (
             <div className="mt-8 rounded-2xl border border-dashed border-line p-10 text-center">

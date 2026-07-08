@@ -8,7 +8,7 @@ import { getMyBookings } from "@/lib/bookings-service";
 import { formatPrice } from "@/lib/listings";
 
 export const metadata = {
-  title: "My Bookings — Nuru",
+  title: "My Bookings  Nuru",
 };
 
 const STATUS_LABEL: Record<string, string> = {
