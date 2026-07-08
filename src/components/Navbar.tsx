@@ -28,10 +28,15 @@ export async function Navbar() {
         <nav className="hidden items-center gap-8 text-sm font-medium text-ink-soft md:flex">
         <Link href="/list-property" className="nav-link">
           List your property
-        </Link>
-        {userEmail && (
+            </Link>
+              {userEmail && (
           <Link href="/my-bookings" className="nav-link">
             My Bookings
+          </Link>
+        )}
+        {userEmail && (
+          <Link href="/dashboard" className="nav-link">
+            Dashboard
           </Link>
         )}
         </nav>
