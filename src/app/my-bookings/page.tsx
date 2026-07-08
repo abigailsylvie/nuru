@@ -7,9 +7,11 @@ import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/is-configured";
 import { getMyBookings } from "@/lib/bookings-service";
 import { formatPrice } from "@/lib/listings";
+import { getMyCheckIns } from "@/lib/checkins-service";
+import { ConfirmCheckInButton } from "./ConfirmCheckInButton";
 
 export const metadata = {
-  title: "My Bookings — Nuru",
+  title: "My Bookings  Nuru",
 };
 
 const STATUS_LABEL: Record<string, string> = {
@@ -59,6 +61,8 @@ export default async function MyBookingsPage() {
   }
 
   const bookings = await getMyBookings();
+  const checkIns = await getMyCheckIns();
+  const pendingCheckIns = checkIns.filter((c) => c.status === "pending");
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -73,6 +77,35 @@ export default async function MyBookingsPage() {
               ? "You haven't requested any bookings yet."
               : `${bookings.length} booking${bookings.length === 1 ? "" : "s"}.`}
           </p>
+
+          {pendingCheckIns.length > 0 && (
+  <div className="mt-8">
+    <h2 className="font-display text-lg font-semibold text-ink">
+      Safety Check-ins
+      <span className="ml-2 rounded-full bg-gold/20 px-2.5 py-0.5 text-xs font-medium text-gold-dim align-middle">
+        {pendingCheckIns.length} due
+      </span>
+    </h2>
+    <div className="mt-4 space-y-3">
+      {pendingCheckIns.map((checkIn) => (
+        <div
+          key={checkIn.id}
+          className="flex flex-col gap-3 rounded-2xl border border-gold/30 bg-gold/5 p-4 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div>
+            <p className="font-display text-sm font-semibold text-ink">
+              {checkIn.listingTitle ?? "Your stay"}
+            </p>
+            <p className="mt-0.5 text-xs text-ink-soft">
+              Scheduled for {new Date(checkIn.scheduledFor).toLocaleString()}
+            </p>
+          </div>
+          <ConfirmCheckInButton checkInId={checkIn.id} />
+        </div>
+      ))}
+    </div>
+  </div>
+)}
 
           {bookings.length === 0 ? (
             <div className="mt-8 rounded-2xl border border-dashed border-line p-10 text-center">
