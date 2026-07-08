@@ -2,13 +2,14 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { CancelBookingButton } from "@/components/CancelBookingButton";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/is-configured";
 import { getMyBookings } from "@/lib/bookings-service";
 import { formatPrice } from "@/lib/listings";
 
 export const metadata = {
-  title: "My Bookings  Nuru",
+  title: "My Bookings — Nuru",
 };
 
 const STATUS_LABEL: Record<string, string> = {
@@ -16,6 +17,8 @@ const STATUS_LABEL: Record<string, string> = {
   held: "Confirmed — payment held",
   released: "Completed",
   refunded: "Refunded",
+  declined: "Declined by landlord",
+  cancelled: "Cancelled",
 };
 
 const STATUS_COLOR: Record<string, string> = {
@@ -23,7 +26,11 @@ const STATUS_COLOR: Record<string, string> = {
   held: "text-teal-dim border-teal/30 bg-teal/5",
   released: "text-ink-soft border-line bg-paper",
   refunded: "text-clay border-clay/30 bg-clay/5",
+  declined: "text-clay border-clay/30 bg-clay/5",
+  cancelled: "text-ink-soft border-line bg-paper",
 };
+
+const CANCELLABLE_STATUSES = new Set(["pending", "held"]);
 
 export default async function MyBookingsPage() {
   if (!isSupabaseConfigured()) {
@@ -113,6 +120,9 @@ export default async function MyBookingsPage() {
                     >
                       {STATUS_LABEL[booking.paymentStatus] ?? booking.paymentStatus}
                     </span>
+                    {CANCELLABLE_STATUSES.has(booking.paymentStatus) && (
+                      <CancelBookingButton bookingId={booking.id} />
+                    )}
                   </div>
                 </div>
               ))}

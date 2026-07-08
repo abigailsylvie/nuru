@@ -7,6 +7,7 @@ import { VerifiedSeal } from "@/components/VerifiedSeal";
 import { formatPrice } from "@/lib/listings";
 import { getCurrentUserInfo, getMyListings, getBookingsForMyListings } from "@/lib/landlord-listings-service";
 import { BookingRequestActions } from "./BookingRequestActions";
+import { CancelBookingButton } from "@/components/CancelBookingButton";
 
 export const metadata = {
   title: "Dashboard  Nuru",
@@ -48,6 +49,7 @@ export default async function DashboardPage() {
   const listings = await getMyListings();
   const bookings = await getBookingsForMyListings();
   const pendingBookings = bookings.filter((b) => b.paymentStatus === "pending");
+  const confirmedBookings = bookings.filter((b) => b.paymentStatus === "held");
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -102,6 +104,32 @@ export default async function DashboardPage() {
               </div>
             </div>
           )}
+       {confirmedBookings.length > 0 && (
+        <div className="mt-8">
+          <h2 className="font-display text-lg font-semibold text-ink">
+            Confirmed Bookings
+          </h2>
+          <div className="mt-4 space-y-3">
+            {confirmedBookings.map((booking) => (
+              <div
+                key={booking.id}
+                className="flex flex-col gap-3 rounded-2xl border border-line bg-paper-raised p-4 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="font-display text-sm font-semibold text-ink">
+                    {booking.listingTitle}
+                  </p>
+                  <p className="mt-0.5 text-xs text-ink-soft">
+                    {booking.studentName} · {new Date(booking.startDate).toLocaleDateString()} —{" "}
+                    {new Date(booking.endDate).toLocaleDateString()}
+                  </p>
+                </div>
+                <CancelBookingButton bookingId={booking.id} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
           {listings.length === 0 ? (
             <div className="mt-8 rounded-2xl border border-dashed border-line p-10 text-center">
