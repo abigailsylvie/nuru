@@ -26,15 +26,14 @@ export async function Navbar() {
           </span>
         </Link>
         <nav className="hidden items-center gap-8 text-sm font-medium text-ink-soft md:flex">
-          <Link href="/listings" className="nav-link">
-            Find housing
+        <Link href="/list-property" className="nav-link">
+          List your property
+        </Link>
+        {userEmail && (
+          <Link href="/my-bookings" className="nav-link">
+            My Bookings
           </Link>
-          <Link href="/#how-it-works" className="nav-link">
-            How it works
-          </Link>
-          <Link href="/list-property" className="nav-link">
-            List your property
-          </Link>
+        )}
         </nav>
         <div className="flex items-center gap-3">
           {userEmail ? (
