@@ -4,7 +4,7 @@ import { ListingsBrowser } from "@/components/ListingsBrowser";
 import { getAllListings } from "@/lib/listings-service";
 
 export const metadata = {
-  title: "Find verified student housing — Nuru",
+  title: "Find verified student housing Nuru",
 };
 
 export default async function ListingsPage() {

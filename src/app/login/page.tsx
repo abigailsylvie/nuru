@@ -6,7 +6,7 @@ import { LoginForm } from "./LoginForm";
 import Image from "next/image";
 
 export const metadata = {
-  title: "Log in — Nuru",
+  title: "Log in  Nuru",
 };
 
 export default function LoginPage() {
