@@ -8,6 +8,7 @@ import { formatPrice } from "@/lib/listings";
 import { getCurrentUserInfo, getMyListings, getBookingsForMyListings } from "@/lib/landlord-listings-service";
 import { BookingRequestActions } from "./BookingRequestActions";
 import { CancelBookingButton } from "@/components/CancelBookingButton";
+import { DeleteListingButton } from "@/components/DeleteListingButton";
 
 export const metadata = {
   title: "Dashboard  Nuru",
@@ -179,6 +180,15 @@ export default async function DashboardPage() {
                       Pending review
                     </span>
                   )}
+                  <div className="flex items-center gap-3">
+                  <Link
+                    href={`/dashboard/listings/${listing.id}/edit`}
+                    className="text-xs font-medium text-teal hover:text-teal-dim"
+                  >
+                    Edit
+                  </Link>
+                  <DeleteListingButton listingId={listing.id} />
+                </div>
                 </div>
               ))}
             </div>
