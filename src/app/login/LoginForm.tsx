@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { login, signup, type AuthState } from "./actions";
+import Link from "next/link";
 
 export function LoginForm() {
   const [mode, setMode] = useState<"login" | "signup">("login");
@@ -115,12 +116,12 @@ export function LoginForm() {
               Password
             </label>
             {mode === "login" && (
-              <a
-                href="#"
+             <Link
+                href="/forgot-password"
                 className="text-xs font-medium text-teal hover:text-teal-dim"
               >
                 Forgot password?
-              </a>
+              </Link>
             )}
           </div>
           <input

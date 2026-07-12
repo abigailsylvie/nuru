@@ -1,55 +1,66 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { isSupabaseConfigured } from "@/lib/supabase/is-configured";
+import { sendEmail, newBookingRequestEmail } from "@/lib/email";
 
-export type BookingActionState = { error?: string } | null;
+export type BookingState = { error?: string; success?: boolean } | null;
 
-async function updateBookingStatus(
-  bookingId: string,
-  newStatus: "held" | "declined",
-): Promise<BookingActionState> {
+export async function requestBooking(
+  _prevState: BookingState,
+  formData: FormData,
+): Promise<BookingState> {
+  if (!isSupabaseConfigured()) {
+    return {
+      error:
+        "Supabase isn't connected yet. Add your project keys to .env.local first.",
+    };
+  }
+
+  const listingId = String(formData.get("listingId") ?? "");
+  const startDate = String(formData.get("startDate") ?? "");
+  const endDate = String(formData.get("endDate") ?? "");
+
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { error: "You must be logged in." };
+    return { error: "Log in as a student first to request a booking." };
   }
 
-  const { data: booking, error: fetchError } = await supabase
-    .from("bookings")
-    .select("id, listings ( landlord_id )")
-    .eq("id", bookingId)
+  const { error } = await supabase.from("bookings").insert({
+    listing_id: listingId,
+    student_id: user.id,
+    start_date: startDate,
+    end_date: endDate,
+    payment_status: "pending",
+  });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  const { data: listing } = await supabase
+    .from("listings")
+    .select("title, landlord_id, profiles ( email )")
+    .eq("id", listingId)
     .single();
 
-  if (fetchError || !booking) {
-    return { error: "Booking not found." };
+  const { data: studentProfile } = await supabase
+    .from("profiles")
+    .select("full_name")
+    .eq("id", user.id)
+    .single();
+
+  const landlordEmail = (listing?.profiles as unknown as { email: string } | null)?.email;
+  if (listing && landlordEmail) {
+    await sendEmail({
+      to: landlordEmail,
+      ...newBookingRequestEmail(listing.title, studentProfile?.full_name ?? "A student"),
+    });
   }
 
-  const listingData = booking.listings as unknown as { landlord_id: string } | null;
-  if (!listingData || listingData.landlord_id !== user.id) {
-    return { error: "You don't have permission to update this booking." };
-  }
-
-  const { error: updateError } = await supabase
-    .from("bookings")
-    .update({ payment_status: newStatus })
-    .eq("id", bookingId);
-
-  if (updateError) {
-    return { error: updateError.message };
-  }
-
-  revalidatePath("/dashboard");
-  return null;
-}
-
-export async function approveBooking(bookingId: string): Promise<BookingActionState> {
-  return updateBookingStatus(bookingId, "held");
-}
-
-export async function declineBooking(bookingId: string): Promise<BookingActionState> {
-  return updateBookingStatus(bookingId, "declined");
+  return { success: true };
 }
